@@ -1,5 +1,6 @@
-class fight():
-    def __init__(self,name:str,fighter1:str,fighter2:str,fighter1_ml:int,fighter2_ml:int,fighter1_props:dict,fighter2_props:dict,rounds:float,outcome:list) -> None:
+class Fight:
+    def __init__(self, name: str, fighter1: str, fighter2: str, fighter1_ml: int, fighter2_ml: int, 
+                 fighter1_props: dict, fighter2_props: dict, rounds: float, outcome: list) -> None:
         self.name = name
         self.fighter1 = fighter1
         self.fighter2 = fighter2
@@ -10,7 +11,9 @@ class fight():
         self.rounds = rounds
         self.outcome = outcome
     
-    def update_outcome(self,update:list):
+    def update_outcome(self, update: list):
+        if not isinstance(update, list):
+            raise ValueError("Outcome update must be a list.")
         self.outcome = update
 
     

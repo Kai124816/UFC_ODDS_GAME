@@ -1,14 +1,18 @@
-from fight import fight
+from fight import Fight
 
-class Card():
-    def __init__(self,fights:list[fight]) -> None:
+class Card:
+    def __init__(self, fights: list[Fight]) -> None:
         self.fights = fights
 
-    def update_outcomes(self,update:tuple) -> None:
+    def update_outcomes(self, update: tuple) -> None:
+        fight_name, new_outcome = update
         for fight in self.fights:
-            if fight.name == update[0]:
-                fight.update_outcome(update)
+            if fight.name == fight_name:
+                fight.update_outcome(new_outcome)
                 break
+        else:
+            raise ValueError(f"Fight with name '{fight_name}' not found.")
+
 
 
     
