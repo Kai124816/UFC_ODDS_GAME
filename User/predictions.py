@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/Users/kaihogan/Projects/Odds_Game_2')
+sys.path.append("../")
 from Fight_Card.card_constructor import Card
 from Fight_Card.fight import Fight
 

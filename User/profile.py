@@ -1,7 +1,6 @@
 from predictions import Picks
 import bcrypt
 
-
 class Person:
     """
     A class to manage user profiles for the betting application.
@@ -15,8 +14,8 @@ class Person:
     total_profit (int): The total profit earned from bets.
     """
 
-    def __init__(self, username: str, password: str, current_picks: Picks, pick_history: list[Picks] = None,
-                 total_payout: int = 0, total_profit: int = 0) -> None:
+    def __init__(self, username: str, password: str, current_picks: Picks = None, pick_history: list[Picks] = None,
+                 total_revenue: int = 0, total_profit: int = 0) -> None:
         """
         Initialize a Person instance.
 
@@ -32,7 +31,7 @@ class Person:
         self.password = self._hash_password(password)
         self.picks = current_picks
         self.pick_history = pick_history if pick_history else []
-        self.total_payout = total_payout
+        self.total_revenue = total_revenue
         self.total_profit = total_profit
 
     @staticmethod

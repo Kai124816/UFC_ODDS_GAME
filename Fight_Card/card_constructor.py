@@ -1,6 +1,4 @@
-import sys
-sys.path.append('/Users/kaihogan/Projects/Odds_Game_2')
-from Fight_Card.fight import Fight
+from fight import Fight
 
 class Card:
     def __init__(self, fights: list[Fight]) -> None:

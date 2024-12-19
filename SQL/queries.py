@@ -2,6 +2,7 @@ import bcrypt
 import mysql.connector
 from mysql.connector import Error
 
+
 # Replace these with your local database details
 HOST = "localhost"
 USER = "kai"
