@@ -1,8 +1,5 @@
-import sys #placeholder
-sys.path.append('/Users/kaihogan/Projects/Odds_Game_2') #placeholder
 import mysql.connector
 from mysql.connector import Error
-sys.path.append("../")
 from User.profile import Person
 import sqlalchemy
 from sqlalchemy import create_engine, Column, Integer, String, JSON

@@ -1,4 +1,4 @@
-from fight import Fight
+from Fight_Card.fight import Fight
 
 class Card:
     def __init__(self, fights: list[Fight]) -> None:

@@ -1,0 +1,17 @@
+setup.py
+Fight_Card/__init__.py
+Fight_Card/card_constructor.py
+Fight_Card/fight.py
+Fight_Card/test_suite.py
+SQL/__init__.py
+SQL/queries.py
+SQL/user_queries.py
+SQL/user_queries_test_suite.py
+User/__init__.py
+User/predictions.py
+User/profile.py
+User/test_suite.py
+project.egg-info/PKG-INFO
+project.egg-info/SOURCES.txt
+project.egg-info/dependency_links.txt
+project.egg-info/top_level.txt

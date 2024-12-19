@@ -1,4 +1,4 @@
-from predictions import Picks
+from User.predictions import Picks
 import bcrypt
 
 class Person:

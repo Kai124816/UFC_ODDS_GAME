@@ -4,7 +4,6 @@ from Fight_Card.card_constructor import Card
 from Fight_Card.fight import Fight
 
 
-
 class BetExceedsBudgetError(Exception):
     """Raised when a bet exceeds the user's budget."""
     def __init__(self, bet, budget, message="Bet exceeds your current budget."):
