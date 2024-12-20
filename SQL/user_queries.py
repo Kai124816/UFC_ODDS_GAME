@@ -6,104 +6,152 @@ from sqlalchemy import create_engine, Column, Integer, String, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+def create_connection():
+    connection = None
+    try:
+        connection = mysql.connector.connect(
+            host='localhost',         # Your MySQL server host
+            user='kai',     # Your MySQL username
+            password='hack_24',  # Your MySQL password
+            database='userdata' # The database you want to access)
+        )
 
-# Replace these with your local database details
-HOST = "localhost"
-USER = "kai"
-PASSWORD = "hack_24"
-DATABASE = "userdata"
+        print("Connection to MySQL DB successful")
+    except Error as e:
+        print(f"The error '{e}' occurred")
 
-try:
-    # Establish the connection
-    connection = mysql.connector.connect(
-        host=HOST,
-        user=USER,
-        password=PASSWORD,
-        database=DATABASE
-    )
+    return connection
 
-    if connection.is_connected():
-        print("Connected to MySQL database")
+def create_session():
+    engine = create_engine("mysql+mysqlconnector://kai:hack_24@localhost/userdata")
 
-except Error as e:
-    print(f"Error: {e}")
-
-finally:
-    # Close the connection if it was established
-    if 'connection' in locals() and connection.is_connected():
-        connection.close()
-        print("Connection closed.")
-
-cursor = connection.cursor()
-
-
-engine = create_engine("mysql+mysqlconnector://kai:hack_24@localhost/userdata")
-
-# Define the base class
-Base = sqlalchemy.orm.declarative_base()
-
-# Define the User table model
-class User(Base):
-    __tablename__ = 'user_list'
-
-    hashed_password = Column(String(255), primary_key=True)
-    username = Column(String(20))
-    total_revenue = Column(Integer)
-    total_profit = Column(Integer)
-
-# Create a session
-Session = sessionmaker(bind=engine)
-session = Session()
-
-# Close the session
-session.close()
-
+    # Create a session
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    return session
 
 def user_to_SQL(user:Person):
-    query = "INSERT INTO user_list (username, hashed_password, total_revenue, total_profit) VALUES (%s, %s, %s, %s)"
-    values = (user.username, user.password, 0, 0)
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        rowcount1 = cursor.rowcount
 
-    cursor.execute(query, values)
-    connection.commit()
+        query = "INSERT INTO user_list (username, hashed_password, total_revenue, total_profit) VALUES (%s, %s, %s, %s)"
+        values = (user.username, user.password, 0, 0)
 
-    print(f"{cursor.rowcount} row(s) inserted.")
+        cursor.execute(query, values)
+        connection.commit()
+
+        print(f"{cursor.rowcount-rowcount1} row(s) inserted.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        cursor.close()
+        connection.close()
 
 def update_revenue_and_profit(user:Person):
-    query = "UPDATE user_list SET total_revenue = %s WHERE hashed_password = %s VALUES(%s,%s)"
-    values = (user.total_revenue,user.password)
-    query2 = "UPDATE user_list SET total_profit = %s WHERE hashed_password = %s VALUES(%s,%s)"
-    values2 = (user.total_profit,user.password)
+    try:
+        # Establish the connection
+        connection = create_connection()
+        cursor = connection.cursor()
 
-    cursor.execute(query, values)
-    cursor.execute(query2, values2)
-    connection.commit()
+        # Single query to update both columns
+        query = """
+        UPDATE user_list 
+        SET total_revenue = %s, total_profit = %s 
+        WHERE hashed_password = %s;
+        """
+        values = (user.total_revenue, user.total_profit, user.password)
 
-    print(f"{cursor.rowcount} row(s) inserted.")
+        # Execute the query
+        cursor.execute(query, values)
+
+        # Commit changes to the database
+        connection.commit()
+
+        print(f"1 row updated.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        connection.close()
 
 def update_password(user:Person,old_password:str):
-    query = "UPDATE user_list SET hashed_password = %s WHERE hashed_password = %s VALUES(%s,%s)"
-    values = (user.password,old_password)
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
 
-    cursor.execute(query, values)
-    connection.commit()
+        query = "UPDATE user_list SET hashed_password = %s WHERE hashed_password = %s;"
+        values = (user.password,old_password)
 
-    print(f"{cursor.rowcount} row(s) inserted.")
+        cursor.execute(query, values)
+        connection.commit()
+
+        print(f"1 row updated.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        cursor.close()
+        connection.close()
 
 def update_username(user:Person):
-    query = "UPDATE user_list SET username = %s WHERE hashed_password = %s VALUES(%s,%s)"
-    values = (user.username,user.password)
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
 
-    cursor.execute(query, values)
-    connection.commit()
+        query = "UPDATE user_list SET username = %s WHERE hashed_password = %s;"
+        values = (user.username,user.password)
 
-    print(f"{cursor.rowcount} row(s) inserted.")
+        cursor.execute(query, values)
+        connection.commit()
+
+        print(f"1 row updated.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        cursor.close()
+        connection.close()
 
 def SQL_to_user(user:Person,user_username:str):
+    session = create_session()
+
+    # Define the base class
+    Base = sqlalchemy.orm.declarative_base()
+    # Define the User table model
+    class User(Base):
+        __tablename__ = 'user_list'
+
+        hashed_password = Column(String(255), primary_key=True)
+        username = Column(String(20))
+        total_revenue = Column(Integer)
+        total_profit = Column(Integer)
+
     template = session.query(User).filter_by(username = user_username).first()
     user.username = template.username
     user.password = template.hashed_password
     user.total_revenue = template.total_revenue
     user.total_profit = template.total_profit
+    session.close()
+
+def delete_user(username:str):
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        rowcount1 = cursor.rowcount
+
+        query = "DELETE FROM user_list WHERE username = %s;"
+        values = (username,)
+
+        cursor.execute(query, values)
+        connection.commit()
+
+        print(f"{rowcount1-cursor.rowcount} row(s) deleted.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        cursor.close()
+        connection.close()
 
 
 
