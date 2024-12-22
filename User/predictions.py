@@ -64,6 +64,12 @@ class Picks:
         BetExceedsBudgetError: If the bet exceeds the remaining budget.
         ContradictoryBetsError: If contradictory bets are placed.
         InsufficientBetsError: If placing this bet prevents the user from making three bets.
+
+        Description of pick list:
+        Pick[0] = Fighter name, if bet is placed on rounds the name is simply "Rounds"
+        Pick[1] = Method, either "ML", "TKO", "Submission", or "Rounds"
+        Pick[2] = Outcome, either "Hit" "Miss" or "TBD"
+        Pick[3] = Amount, amount placed on bet
         """
         if self.remaining_budget - amount < 0:
             raise BetExceedsBudgetError(amount, self.remaining_budget)

@@ -1,7 +1,9 @@
 from Fight_Card.fight import Fight
+import datetime
 
 class Card:
-    def __init__(self, fights: list[Fight]) -> None:
+    def __init__(self, fights: list[Fight],date:datetime.date) -> None:
+        self.date = date
         self.fights = fights
 
     def update_outcomes(self, update: tuple) -> None:
