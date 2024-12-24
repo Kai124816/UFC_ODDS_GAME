@@ -1,6 +1,10 @@
 class Fight:
     def __init__(self, name: str, fighter1: str, fighter2: str, fighter1_ml: int, fighter2_ml: int, 
                  fighter1_props: dict, fighter2_props: dict, rounds: float, outcome: list) -> None:
+        """
+        Outcome = Winner,Method,Round
+        if there is no winner Outcome[0] is None
+        """
         self.name = name
         self.fighter1 = fighter1
         self.fighter2 = fighter2

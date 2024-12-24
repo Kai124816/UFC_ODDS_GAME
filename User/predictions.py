@@ -66,7 +66,8 @@ class Picks:
         InsufficientBetsError: If placing this bet prevents the user from making three bets.
 
         Description of pick list:
-        Pick[0] = Fighter name, if bet is placed on rounds the name is simply "Rounds"
+        Pick[0] = Fighter name, if bet is placed on rounds the Fighter1 signifies under Fighter2 signifies over
+        
         Pick[1] = Method, either "ML", "TKO", "Submission", or "Rounds"
         Pick[2] = Outcome, either "Hit" "Miss" or "TBD"
         Pick[3] = Amount, amount placed on bet
@@ -119,7 +120,7 @@ class Picks:
                 if pick[0] == winner:
                     if pick[1] == "ML" or pick[1] == update.outcome[1]:
                         pick[2] = "Hit"
-                        self.calculate_payout(ml, pick[3])
+                        self.calculate_payout(ml, pick[3])   
                     else:
                         pick[2] = "Miss"
                 elif pick[0] == loser:
