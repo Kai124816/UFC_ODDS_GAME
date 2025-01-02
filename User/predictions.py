@@ -67,7 +67,6 @@ class Picks:
 
         Description of pick list:
         Pick[0] = Fighter name, if bet is placed on rounds the Fighter1 signifies under Fighter2 signifies over
-        
         Pick[1] = Method, either "ML", "TKO", "Submission", or "Rounds"
         Pick[2] = Outcome, either "Hit" "Miss" or "TBD"
         Pick[3] = Amount, amount placed on bet

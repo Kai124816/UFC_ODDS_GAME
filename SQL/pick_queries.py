@@ -5,9 +5,15 @@ from Fight_Card.fight import Fight
 import mysql.connector
 from mysql.connector import Error
 import sqlalchemy
+from sqlalchemy import cast
+from sqlalchemy.types import Date
 from sqlalchemy import create_engine, Column, Integer, String, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import MetaData
+from sqlalchemy import Table
+from sqlalchemy import select
+import datetime
 
 def create_connection():
     connection = None
@@ -72,14 +78,17 @@ def create_table(user:Person):
         cursor = connection.cursor()
 
         # Query to check for table existence
-        
-        cursor.execute(f"CREATE TABLE {table_name} (
-                        Card DATE,
-                        Fighter varchar(50),
-                        Method varchar(10),
-                        Outcome varchar(10),
-                        Amount_Placed INT
-                        );")
+        query = f"""
+        CREATE TABLE `{table_name}` (
+            Card DATE,
+            Fighter VARCHAR(50),
+            Method VARCHAR(10),
+            Outcome VARCHAR(10),
+            Amount_Placed INT
+        );
+        """
+
+        cursor.execute(query)
 
         # Close the connection
         cursor.close()
@@ -88,23 +97,34 @@ def create_table(user:Person):
     except mysql.connector.Error as e:
         print(f"Error: {e}")
 
-def store_pick(user:Person,pick:list,card:Card):
+def store_picks(user: Person):
     try:
         connection = create_connection()
 
         # Create a cursor object
         cursor = connection.cursor()
 
-        # Query to check for table existence
-        query = f"""
-        INSERT INTO {user.username}_picks (Card, Fighter, Method, Outcome, Amount_Placed)
-        VALUES ('{card.date}', '{pick[0]}', '{pick[1]}', '{pick[2]}', {pick[3]});
-        """
-        if table_exists(table_name="{user.username}_picks"):
-            cursor.execute(query)
+        picks = user.picks.picks
+        card = user.picks.card
+        table_name = user.username + "_picks "
+
+        # Parameterized query for safety
+        query = "INSERT INTO " + table_name + "(Card, Fighter, Method, Outcome, Amount_Placed) VALUES (%s, %s, %s, %s, %s)"
+
+        if table_exists(table_name):
+            for pick in picks:
+                values = (card.date, pick[0], pick[1], pick[2], pick[3])
+                cursor.execute(query, values)
         else:
             create_table(user)
-            cursor.execute(query)
+            for pick in picks:
+                values = (card.date, pick[0], pick[1], pick[2], pick[3])
+                cursor.execute(query, values)
+
+        # Commit the transaction
+        connection.commit()
+
+        print("Picks stored successfully.")
 
         # Close the connection
         cursor.close()
@@ -112,6 +132,65 @@ def store_pick(user:Person,pick:list,card:Card):
 
     except mysql.connector.Error as e:
         print(f"Error: {e}")
+
+def SQL_to_Picks(user: Person, date: datetime.date):
+    # Create database engine
+    engine = create_engine("mysql+mysqlconnector://kai:hack_24@localhost/userdata")
+    connection = engine.connect()
+    metadata = MetaData()
+
+    # Reflect the table
+    table_name = user.username + "_picks"
+    table = Table(table_name, metadata, autoload_with=engine)
+
+    # Create a query
+    query = select(table).where(table.c["Card"] == date)
+
+    # Execute the query and fetch results
+    result = connection.execute(query)
+    rows = result.fetchall()
+
+    # Close the connection
+    connection.close()
+
+    for row in rows:
+        pick = []
+        pick.append(row[1])
+        pick.append(row[2])
+        pick.append(row[3])
+        pick.append(row[4])
+        user.picks.picks.append(pick)
+
+def delete_user(user: Person):
+    """
+    Deletes a user's table and associated data from the database.
+
+    :param user: An instance of the Person class, representing the user.
+    """
+    try:
+        connection = create_connection()
+
+        # Create a cursor object
+        cursor = connection.cursor()
+
+        # Define the table name
+        table_name = f"{user.username}_picks"
+
+        # Check if the table exists
+        if table_exists(table_name):
+            # Drop the table
+            cursor.execute(f"DROP TABLE {table_name};")
+            print(f"Table '{table_name}' successfully deleted.")
+        else:
+            print(f"Table '{table_name}' does not exist.")
+
+        # Close the connection
+        cursor.close()
+        connection.close()
+
+    except mysql.connector.Error as e:
+        print(f"Error: {e}")
+
 
 
 
