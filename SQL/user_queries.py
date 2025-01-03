@@ -30,7 +30,19 @@ def create_session():
     session = Session()
     return session
 
-def user_to_SQL(user:Person):
+def user_to_SQL(user: Person):
+    """
+    Inserts a new user's information into the 'user_list' table in the database.
+
+    Args:
+        user (Person): The user object containing username and hashed password.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: If an error occurs during the database query or connection.
+    """
     try:
         connection = create_connection()
         cursor = connection.cursor()
@@ -42,14 +54,27 @@ def user_to_SQL(user:Person):
         cursor.execute(query, values)
         connection.commit()
 
-        print(f"{cursor.rowcount-rowcount1} row(s) inserted.")
+        print(f"{cursor.rowcount - rowcount1} row(s) inserted.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
         cursor.close()
         connection.close()
 
-def update_revenue_and_profit(user:Person):
+
+def update_revenue_and_profit(user: Person):
+    """
+    Updates the total revenue and profit for a specific user in the 'user_list' table.
+
+    Args:
+        user (Person): The user object containing updated revenue and profit values.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: If an error occurs during the database query or connection.
+    """
     try:
         # Establish the connection
         connection = create_connection()
@@ -77,13 +102,27 @@ def update_revenue_and_profit(user:Person):
         cursor.close()
         connection.close()
 
-def update_password(user:Person,old_password:str):
+
+def update_password(user: Person, old_password: str):
+    """
+    Updates a user's password in the 'user_list' table.
+
+    Args:
+        user (Person): The user object with the new password.
+        old_password (str): The current password to be updated.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: If an error occurs during the database query or connection.
+    """
     try:
         connection = create_connection()
         cursor = connection.cursor()
 
         query = "UPDATE user_list SET hashed_password = %s WHERE hashed_password = %s;"
-        values = (user.password,old_password)
+        values = (user.password, old_password)
 
         cursor.execute(query, values)
         connection.commit()
@@ -95,13 +134,26 @@ def update_password(user:Person,old_password:str):
         cursor.close()
         connection.close()
 
-def update_username(user:Person):
+
+def update_username(user: Person):
+    """
+    Updates a user's username in the 'user_list' table.
+
+    Args:
+        user (Person): The user object with the new username.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: If an error occurs during the database query or connection.
+    """
     try:
         connection = create_connection()
         cursor = connection.cursor()
 
         query = "UPDATE user_list SET username = %s WHERE hashed_password = %s;"
-        values = (user.username,user.password)
+        values = (user.username, user.password)
 
         cursor.execute(query, values)
         connection.commit()
@@ -113,7 +165,21 @@ def update_username(user:Person):
         cursor.close()
         connection.close()
 
-def SQL_to_user(user:Person,user_username:str):
+
+def SQL_to_user(user: Person, user_username: str):
+    """
+    Retrieves a user's data from the database and updates the user's object with that information.
+
+    Args:
+        user (Person): The user object to be updated with data from the database.
+        user_username (str): The username of the user whose data is to be fetched.
+
+    Returns:
+        None
+
+    Raises:
+        sqlalchemy.exc.SQLAlchemyError: If an error occurs during the database query or connection.
+    """
     session = create_session()
 
     # Define the base class
@@ -127,14 +193,27 @@ def SQL_to_user(user:Person,user_username:str):
         total_revenue = Column(Integer)
         total_profit = Column(Integer)
 
-    template = session.query(User).filter_by(username = user_username).first()
+    template = session.query(User).filter_by(username=user_username).first()
     user.username = template.username
     user.password = template.hashed_password
     user.total_revenue = template.total_revenue
     user.total_profit = template.total_profit
     session.close()
 
-def delete_user(username:str):
+
+def delete_user(username: str):
+    """
+    Deletes a user from the 'user_list' table based on the username.
+
+    Args:
+        username (str): The username of the user to be deleted.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: If an error occurs during the database query or connection.
+    """
     try:
         connection = create_connection()
         cursor = connection.cursor()
@@ -146,23 +225,9 @@ def delete_user(username:str):
         cursor.execute(query, values)
         connection.commit()
 
-        print(f"{rowcount1-cursor.rowcount} row(s) deleted.")
+        print(f"{rowcount1 - cursor.rowcount} row(s) deleted.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
         cursor.close()
         connection.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-

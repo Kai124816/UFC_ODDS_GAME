@@ -33,10 +33,13 @@ class Picks:
         Initialize Picks with betting data.
 
         Args:
-        picks (list): List of user picks.
-        card (Card): The associated Card object.
-        remaining_budget (int): User's remaining budget for betting.
-        payout (int): Total payout amount.
+            picks (list): List of user picks. Each pick is a list containing fighter, method, outcome, and amount.
+            card (Card): The associated Card object, which contains the details of the fights.
+            remaining_budget (int): The user's remaining budget for betting.
+            payout (int): Total payout amount accumulated from all bets.
+
+        Returns:
+            None
         """
         self.picks = picks if picks else []
         self.card = card
@@ -44,7 +47,16 @@ class Picks:
         self.payout = payout
 
     def calculate_payout(self, odds: int, bet_amount: float) -> None:
-        """Calculate and add the payout for a given bet amount and odds."""
+        """
+        Calculate and add the payout for a given bet amount and odds.
+
+        Args:
+            odds (int): The odds of the bet, positive for favorites, negative for underdogs.
+            bet_amount (float): The amount of money placed on the bet.
+
+        Returns:
+            None
+        """
         if odds < 0:
             win_amount = bet_amount * 100 / abs(odds)
         else:
@@ -56,20 +68,23 @@ class Picks:
         Add a new pick for a fighter.
 
         Args:
-        fighter (str): The fighter's name.
-        method (str): The method of victory (e.g., KO, Decision).
-        amount (int): The bet amount.
+            fighter (str): The fighter's name.
+            method (str): The method of victory (e.g., KO, Decision).
+            amount (int): The bet amount.
 
         Raises:
-        BetExceedsBudgetError: If the bet exceeds the remaining budget.
-        ContradictoryBetsError: If contradictory bets are placed.
-        InsufficientBetsError: If placing this bet prevents the user from making three bets.
+            BetExceedsBudgetError: If the bet exceeds the remaining budget.
+            ContradictoryBetsError: If contradictory bets are placed on the same fighter's opponent.
+            InsufficientBetsError: If placing this bet prevents the user from making at least three bets.
 
-        Description of pick list:
-        Pick[0] = Fighter name, if bet is placed on rounds the Fighter1 signifies under Fighter2 signifies over
-        Pick[1] = Method, either "ML", "TKO", "Submission", or "Rounds"
-        Pick[2] = Outcome, either "Hit" "Miss" or "TBD"
-        Pick[3] = Amount, amount placed on bet
+        Returns:
+            None
+
+        Description of the pick list:
+            Pick[0] = Fighter name
+            Pick[1] = Method (e.g., "ML", "TKO", "Submission", "Rounds")
+            Pick[2] = Outcome ("Hit", "Miss", or "TBD")
+            Pick[3] = Amount placed on bet
         """
         if self.remaining_budget - amount < 0:
             raise BetExceedsBudgetError(amount, self.remaining_budget)
@@ -97,11 +112,28 @@ class Picks:
         self.remaining_budget -= amount
 
     def remove_pick(self, pick: list) -> None:
-        """Remove a specific pick."""
+        """
+        Remove a specific pick from the list of user picks.
+
+        Args:
+            pick (list): The pick to be removed from the list.
+
+        Returns:
+            None
+        """
+        self.remaining_budget += pick[3]
         self.picks.remove(pick)
 
     def update_picks(self, update: Fight) -> None:
-        """Update picks based on fight outcomes."""
+        """
+        Update picks based on the outcomes of a fight.
+
+        Args:
+            update (Fight): The fight object containing the outcome of the fight.
+
+        Returns:
+            None
+        """
         if update.outcome[0] == "NC":
             for pick in self.picks:
                 if pick[0] in [update.fighter1, update.fighter2]:

@@ -4,7 +4,6 @@ from Fight_Card.card_constructor import Card
 from Fight_Card.fight import Fight
 import mysql.connector
 from mysql.connector import Error
-import sqlalchemy
 from sqlalchemy import cast
 from sqlalchemy.types import Date
 from sqlalchemy import create_engine, Column, Integer, String, JSON
@@ -41,11 +40,16 @@ def create_session():
 
 def table_exists(table_name: str):
     """
-    Check if a table exists in a specific MySQL database.
+    Checks if a table exists in the MySQL database.
 
-    :param table_name: Name of the table to look for.
-    :param password: MySQL password (default is an empty string).
-    :return: True if the table exists, False otherwise.
+    Args:
+        table_name (str): The name of the table to check for.
+
+    Returns:
+        bool: True if the table exists, False otherwise.
+
+    Raises:
+        mysql.connector.Error: If there is an error in executing the query or connecting to the database.
     """
     try:
         connection = create_connection()
@@ -54,7 +58,6 @@ def table_exists(table_name: str):
         cursor = connection.cursor()
 
         # Query to check for table existence
-        
         cursor.execute(f"SHOW TABLES LIKE '{table_name}';")
         result = cursor.fetchone()
 
@@ -68,8 +71,21 @@ def table_exists(table_name: str):
     except mysql.connector.Error as e:
         print(f"Error: {e}")
         return False
-    
-def create_table(user:Person):
+
+
+def create_table(user: Person):
+    """
+    Creates a table for storing picks for a specific user.
+
+    Args:
+        user (Person): The user object containing the username for table naming.
+
+    Returns:
+        None
+
+    Raises:
+        mysql.connector.Error: If there is an error in executing the query or connecting to the database.
+    """
     table_name = f"{user.username}_picks"
     try:
         connection = create_connection()
@@ -77,7 +93,7 @@ def create_table(user:Person):
         # Create a cursor object
         cursor = connection.cursor()
 
-        # Query to check for table existence
+        # Query to create the table
         query = f"""
         CREATE TABLE `{table_name}` (
             Card DATE,
@@ -97,7 +113,20 @@ def create_table(user:Person):
     except mysql.connector.Error as e:
         print(f"Error: {e}")
 
+
 def store_picks(user: Person):
+    """
+    Stores a user's picks in their corresponding table in the database.
+
+    Args:
+        user (Person): The user object whose picks will be stored.
+
+    Returns:
+        None
+
+    Raises:
+        mysql.connector.Error: If there is an error in executing the query or connecting to the database.
+    """
     try:
         connection = create_connection()
 
@@ -106,7 +135,7 @@ def store_picks(user: Person):
 
         picks = user.picks.picks
         card = user.picks.card
-        table_name = user.username + "_picks "
+        table_name = user.username + "_picks"
 
         # Parameterized query for safety
         query = "INSERT INTO " + table_name + "(Card, Fighter, Method, Outcome, Amount_Placed) VALUES (%s, %s, %s, %s, %s)"
@@ -133,7 +162,21 @@ def store_picks(user: Person):
     except mysql.connector.Error as e:
         print(f"Error: {e}")
 
+
 def SQL_to_Picks(user: Person, date: datetime.date):
+    """
+    Retrieves picks from the database for a specific user and date, and stores them in the user's picks object.
+
+    Args:
+        user (Person): The user object whose picks will be retrieved and updated.
+        date (datetime.date): The date for which the picks should be retrieved.
+
+    Returns:
+        None
+
+    Raises:
+        sqlalchemy.exc.SQLAlchemyError: If there is an error in executing the query or connecting to the database.
+    """
     # Create database engine
     engine = create_engine("mysql+mysqlconnector://kai:hack_24@localhost/userdata")
     connection = engine.connect()
@@ -161,11 +204,19 @@ def SQL_to_Picks(user: Person, date: datetime.date):
         pick.append(row[4])
         user.picks.picks.append(pick)
 
+
 def delete_user(user: Person):
     """
     Deletes a user's table and associated data from the database.
 
-    :param user: An instance of the Person class, representing the user.
+    Args:
+        user (Person): An instance of the Person class, representing the user.
+
+    Returns:
+        None
+
+    Raises:
+        mysql.connector.Error: If there is an error in executing the query or connecting to the database.
     """
     try:
         connection = create_connection()
@@ -190,11 +241,3 @@ def delete_user(user: Person):
 
     except mysql.connector.Error as e:
         print(f"Error: {e}")
-
-
-
-
-
-
-
-

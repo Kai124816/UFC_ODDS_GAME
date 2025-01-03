@@ -6,12 +6,12 @@ class Person:
     A class to manage user profiles for the betting application.
 
     Attributes:
-    username (str): The user's unique username.
-    password (str): The hashed password for user authentication.
-    picks (Picks): The user's current betting activity.
-    pick_history (list[Picks]): A history of all past betting activities.
-    total_payout (int): The total amount of payouts received.
-    total_profit (int): The total profit earned from bets.
+        username (str): The user's unique username.
+        password (str): The hashed password for user authentication.
+        picks (Picks): The user's current betting activity.
+        pick_history (list[Picks]): A history of all past betting activities.
+        total_payout (int): The total amount of payouts received.
+        total_profit (int): The total profit earned from bets.
     """
 
     def __init__(self, username: str, password: str, current_picks: Picks = None, pick_history: list[Picks] = None,
@@ -20,12 +20,12 @@ class Person:
         Initialize a Person instance.
 
         Args:
-        username (str): The user's unique username.
-        password (str): The plain-text password (will be hashed).
-        current_picks (Picks): The user's current picks.
-        pick_history (list[Picks], optional): A list of previous Picks objects. Defaults to None.
-        total_payout (int, optional): The total payout amount. Defaults to 0.
-        total_profit (int, optional): The total profit amount. Defaults to 0.
+            username (str): The user's unique username.
+            password (str): The plain-text password (will be hashed).
+            current_picks (Picks): The user's current picks.
+            pick_history (list[Picks], optional): A list of previous Picks objects. Defaults to None.
+            total_revenue (int, optional): The total revenue amount. Defaults to 0.
+            total_profit (int, optional): The total profit amount. Defaults to 0.
         """
         self.username = username
         self.password = self._hash_password(password)
@@ -40,10 +40,10 @@ class Person:
         Hash a plain-text password.
 
         Args:
-        password (str): The plain-text password.
+            password (str): The plain-text password.
 
         Returns:
-        str: The hashed password.
+            str: The hashed password.
         """
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
@@ -52,7 +52,7 @@ class Person:
         Change the user's password.
 
         Args:
-        new_password (str): The new plain-text password.
+            new_password (str): The new plain-text password.
         """
         self.password = self._hash_password(new_password)
 
@@ -61,11 +61,9 @@ class Person:
         Verify a given password against the stored hashed password.
 
         Args:
-        password (str): The plain-text password to verify.
+            password (str): The plain-text password to verify.
 
         Returns:
-        bool: True if the password is correct, False otherwise.
+            bool: True if the password is correct, False otherwise.
         """
         return bcrypt.checkpw(password.encode(), self.password.encode())
-
-        
