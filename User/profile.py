@@ -56,14 +56,24 @@ class Person:
         """
         self.password = self._hash_password(new_password)
 
-    def verify_password(self, password: str) -> bool:
+    @staticmethod
+    def verify_password(plaintext_password, hashed_password):
         """
-        Verify a given password against the stored hashed password.
+        Verify if the plaintext password matches the hashed password.
 
         Args:
-            password (str): The plain-text password to verify.
+            plaintext_password (str): The plaintext password to verify.
+            hashed_password (str): The hashed password to compare against.
 
         Returns:
-            bool: True if the password is correct, False otherwise.
+            bool: True if the password matches, False otherwise.
         """
-        return bcrypt.checkpw(password.encode(), self.password.encode())
+        # Convert strings to bytes for bcrypt compatibility
+        plaintext_bytes = plaintext_password.encode('utf-8')
+        hashed_bytes = hashed_password.encode('utf-8')
+
+        # Use bcrypt's checkpw method to verify
+        return bcrypt.checkpw(plaintext_bytes, hashed_bytes)
+    
+
+

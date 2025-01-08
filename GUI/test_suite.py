@@ -137,7 +137,6 @@ fight11 = Fight(
     outcome=["TBD"]
 )
 
-
 Test_Card = card = Card(
     fights=[fight1, fight2, fight3, fight4, fight5, fight6, fight7, fight8, fight9, fight10, fight11],  # List of Fight instances
     date=datetime.date(2024, 12, 25)  # Example date

@@ -5,6 +5,7 @@ import sqlalchemy
 from sqlalchemy import create_engine, Column, Integer, String, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import bcrypt
 
 def create_connection():
     connection = None
@@ -22,6 +23,7 @@ def create_connection():
 
     return connection
 
+
 def create_session():
     engine = create_engine("mysql+mysqlconnector://kai:hack_24@localhost/userdata")
 
@@ -29,6 +31,7 @@ def create_session():
     Session = sessionmaker(bind=engine)
     session = Session()
     return session
+
 
 def user_to_SQL(user: Person):
     """
@@ -46,20 +49,91 @@ def user_to_SQL(user: Person):
     try:
         connection = create_connection()
         cursor = connection.cursor()
-        rowcount1 = cursor.rowcount
 
         query = "INSERT INTO user_list (username, hashed_password, total_revenue, total_profit) VALUES (%s, %s, %s, %s)"
-        values = (user.username, user.password, 0, 0)
+        values = (user.username, user.password, user.total_revenue, user.total_profit)
 
         cursor.execute(query, values)
         connection.commit()
 
-        print(f"{cursor.rowcount - rowcount1} row(s) inserted.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
         cursor.close()
         connection.close()
+
+
+def user_exists(username:str):
+    """
+    Updates the total revenue and profit for a specific user in the 'user_list' table.
+
+    Args:
+        user (Person): The user object containing updated revenue and profit values.
+
+    Returns:
+        True if username exists in SQL database, False if it doesn't
+
+    Raises:
+        Exception: If an error occurs during the database query or connection.
+    """
+    try:
+        # Establish the connection
+        connection = create_connection()
+        cursor = connection.cursor()
+
+        # Single query to update both columns
+        query = """
+        SELECT EXISTS(SELECT 1 FROM user_list WHERE username = %s)
+        """
+        values = (username,)
+
+        # Execute the query 
+        cursor.execute(query, values)
+    
+        result = cursor.fetchone()
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        connection.close()
+        return bool(result[0])
+
+
+def retrieve_password(username) -> str:
+    """
+    Verify a given password against the stored hashed password.
+
+    Args:
+        password (str): The plain-text password to verify.
+
+    Returns:
+        bool: True if the password is correct, False otherwise.
+    """
+    try:
+        # Establish the connection
+        connection = create_connection()
+        cursor = connection.cursor()
+
+        # Single query to update both columns
+        query = """
+        SELECT hashed_password FROM user_list WHERE username = %s)
+        """
+        values = (username,)
+
+        # Execute the query 
+        cursor.execute(query, values)
+    
+        result = cursor.fetchone()
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        connection.close()
+        return result
 
 
 def update_revenue_and_profit(user: Person):
@@ -88,13 +162,12 @@ def update_revenue_and_profit(user: Person):
         """
         values = (user.total_revenue, user.total_profit, user.password)
 
-        # Execute the query
+        # Execute the query 
         cursor.execute(query, values)
 
         # Commit changes to the database
         connection.commit()
 
-        print(f"1 row updated.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
@@ -217,7 +290,6 @@ def delete_user(username: str):
     try:
         connection = create_connection()
         cursor = connection.cursor()
-        rowcount1 = cursor.rowcount
 
         query = "DELETE FROM user_list WHERE username = %s;"
         values = (username,)
@@ -225,7 +297,6 @@ def delete_user(username: str):
         cursor.execute(query, values)
         connection.commit()
 
-        print(f"{rowcount1 - cursor.rowcount} row(s) deleted.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:

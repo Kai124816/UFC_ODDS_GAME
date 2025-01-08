@@ -55,10 +55,10 @@ def interface(user:Person,card:Card):
     def display_odds_window(fight:Fight):
         odds_window = tk.Toplevel()
         odds_window.title(f"{fight.fighter1} vs {fight.fighter2} Odds")
-        odds_window.geometry('400x300')
+        odds_window.geometry('400x350')
         odds_window.configure(bg='#f0f0f0')
 
-        tk.Label(odds_window, text=f"{fight.fighter1} Odds", font='Calibri 18 bold', bg='#f0f0f0').pack(pady=10)
+        tk.Label(odds_window, text=f"{fight.fighter1} Odds", font='Calibri 18 bold', bg='#000000').pack(pady=10)
         
         odds_frame = tk.Frame(odds_window, bg='#f0f0f0')
         odds_frame.pack(fill='x', padx=20)
@@ -70,7 +70,7 @@ def interface(user:Person,card:Card):
         tk.Button(odds_frame, text=f"Submission: {fight.fighter1_props['Submission']}", font='Calibri 14', bg='#f0f0f0', command=lambda f=fight.fighter1: place_bets_window(f,"Submission")).pack()
 
         # Fighter 2 odds
-        tk.Label(odds_window, text=f"{fight.fighter2} Odds", font='Calibri 18 bold', bg='#f0f0f0').pack(pady=10)
+        tk.Label(odds_window, text=f"{fight.fighter2} Odds", font='Calibri 18 bold', bg='#000000').pack(pady=10)
         
         odds_frame = tk.Frame(odds_window, bg='#f0f0f0')
         odds_frame.pack(fill='x', padx=20)
@@ -138,41 +138,75 @@ def interface(user:Person,card:Card):
         show_message("Error", "Can't place negative units")
 
     def pick_error5(e:str):
-        show_message("Error", e)
+        show_message2("Error", e)
     
     def show_message(title: str, message: str):
         new_window = tk.Toplevel(window)
         new_window.title(title)
         new_window.geometry("250x100")
         new_window.configure(bg='#f0f0f0')
-        ttk.Label(new_window, text=message, font='Calibri 15', wraplength=240, background='#f0f0f0').pack(pady=20, padx=20)
+        ttk.Label(new_window, text=message, font='Calibri 15', wraplength=200, justify = 'center', background='#f0f0f0').pack(pady=20, padx=20)
+
+    def show_message2(title: str, message: str):
+        new_window = tk.Toplevel(window)
+        new_window.title(title)
+        new_window.geometry("350x150")
+        new_window.configure(bg='#f0f0f0')
+        ttk.Label(new_window, text=message, font='Calibri 15', wraplength=300, justify = 'center', background='#f0f0f0').pack(pady=20, padx=20)
 
     # Display the bets
     def display_bets():
         # Create a new window
         w1 = tk.Toplevel()
         w1.title('Bets Placed')
-        w1.geometry('400x400')
+        w1.geometry('400x600')
         w1.configure(bg='#f0f0f0')
-        
+
+        # Create a CTkScrollableFrame-like structure
+        scrollable_frame = ctk.CTkScrollableFrame(w1, width=400, height=600)
+        scrollable_frame.pack(fill='both', expand=True)
+
         # Check if there are no bets
         if len(user.picks.picks) == 0:
-            label = ttk.Label(w1, text='No Bets Placed Yet', font='Calibri 15', anchor='center', background='#f0f0f0')
+            label = ttk.Label(scrollable_frame, text='No Bets Placed Yet', font='Calibri 15', anchor='center', background='#f0f0f0')
             label.pack(pady=20)
         else:
-            # Convert dictionary keys to a list
             for pick in user.picks.picks:
-                bet_frame = tk.Frame(w1, bg='#ffffff', relief='ridge', borderwidth=2)
+                # Create a frame for each bet
+                bet_frame = tk.Frame(scrollable_frame, bg='#ffffff', relief='ridge', borderwidth=2)
                 bet_frame.pack(fill='x', pady=(10, 5), padx=20)
-                
-                label = ttk.Label(master=bet_frame, text=f'{pick[3]} units placed on {pick[0]} by {pick[1]}', font='Calibri 15', anchor='center', wraplength=300, justify='center', background='#ffffff')
+
+                # Display bet details
+                label = ttk.Label(
+                    master=bet_frame,
+                    text=f'{pick[3]} units placed on {pick[0]} by {pick[1]}',
+                    font='Calibri 15',
+                    anchor='center',
+                    wraplength=300,
+                    justify='center',
+                    background='#ffffff'
+                )
                 label.pack(pady=(10, 5))
-                
+
+                # Add a button to remove the bet
                 button_frame = tk.Frame(bet_frame, bg='#ffffff')
                 button_frame.pack(fill='x', pady=(0, 10))
-                
-                button1 = tk.Button(button_frame, text='Remove Bet', font='Calibri 15', command=lambda f=pick: remove_bets(f, w1))
+
+                button1 = ttk.Button(
+                    button_frame,
+                    text='Remove Bet',
+                    style='RemoveButton.TButton',
+                    command=lambda f=pick: remove_bets(f, w1)
+                )
                 button1.pack(pady=5)
+
+        # Styling for Remove Button
+        style = ttk.Style()
+        style.configure('RemoveButton.TButton', font=('Calibri', 15), background='#ff6666')
+
+        # Ensure the scrollable frame behaves as expected
+        scrollable_frame.update_idletasks()
+
 
     def remove_bets(pick: list, window: tk.Toplevel):
         window.destroy()

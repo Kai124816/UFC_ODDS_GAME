@@ -27,6 +27,15 @@ class InsufficientBetsError(Exception):
         super().__init__(f"{message} Total bets: {total_bets}")
 
 
+class ContradictoryMethodsError(Exception):
+    """Raised when contradictory bets are placed."""
+    def __init__(self, fighter, method1, method2, message="Contradictory bets placed on the same fighter by different methods."):
+        self.fighter1 = fighter
+        self.method1 = method1
+        self.method2 = method2
+        super().__init__(f"{message} {fighter} by {method1} and {fighter} by {method2}")
+
+
 class Picks:
     def __init__(self, picks: list[list] = None, card: Card = None, remaining_budget: int = 0, payout: int = 0) -> None:
         """
@@ -102,14 +111,20 @@ class Picks:
                 break
 
         # Check for contradictory bets
+        
         for pick in self.picks:
             if pick[0] == opponent:
                 raise ContradictoryBetsError(opponent, fighter)
-
-        # Add the new pick
+            elif pick[0] == fighter:
+                if pick[1] != method:
+                    raise ContradictoryMethodsError(fighter,pick[1],method)
+                else:
+                    pick[3] += amount
+        
         new_pick = [fighter, method, "TBD", amount]
-        self.picks.append(new_pick)
-        self.remaining_budget -= amount
+        if new_pick not in self.picks:
+            self.picks.append(new_pick)
+            self.remaining_budget -= amount
 
     def remove_pick(self, pick: list) -> None:
         """
